@@ -1,4 +1,4 @@
-# Meeting Room API
+# Situation Room API
 
 Fetches a collection of meeting room calendars from the Google Calendar API and exposes a list of the upcoming events and whether the room is available.
 
