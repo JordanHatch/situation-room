@@ -1,1 +1,1 @@
-web: ./situation-room
+web: situation-room
