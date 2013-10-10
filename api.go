@@ -1,6 +1,10 @@
 package main
 
 import (
+	auth "github.com/abbot/go-http-auth"
+
+	"crypto/sha1"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -19,6 +23,9 @@ var client ApiClient
 var googleApiKey = os.Getenv("MEETING_ROOM_API_KEY")
 var googleClientId = os.Getenv("MEETING_ROOM_CLIENT_ID")
 
+var authUsername = os.Getenv("MEETING_ROOM_AUTH_USER")
+var authPassword = os.Getenv("MEETING_ROOM_AUTH_PASS")
+
 var rooms map[string]Room = make(map[string]Room)
 
 func main() {
@@ -34,11 +41,23 @@ func main() {
 	log.Println("API is starting up on :" + port)
 	log.Println("Use Ctrl+C to stop")
 
-	http.HandleFunc("/", eventsHandler)
+	authenticator := auth.NewBasicAuthenticator("situation-room", Authenticate)
+	http.HandleFunc("/", authenticator.Wrap(eventsHandler))
 	http.ListenAndServe(":"+port, nil)
 }
 
-func eventsHandler(w http.ResponseWriter, r *http.Request) {
+func Authenticate(user, realm string) string {
+	if user == authUsername {
+		d := sha1.New()
+		d.Write([]byte(authPassword))
+		e := base64.StdEncoding.EncodeToString(d.Sum(nil))
+
+		return "{SHA}" + e
+	}
+	return ""
+}
+
+func eventsHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	w.Header().Set("Content-Type", "application/json")
 
 	roomSet := RoomSet{
