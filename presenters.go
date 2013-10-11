@@ -14,9 +14,11 @@ type EventApiResponse struct {
 }
 
 type RoomApiResponse struct {
-	Events    []EventApiResponse `json:"events"`
-	Available bool               `json:"available"`
-	Room      Room               `json:"-"`
+	Events         []EventApiResponse `json:"events"`
+	Available      bool               `json:"available"`
+	NextAvailable  string             `json:"next_available,omitempty"`
+	AvailableUntil string             `json:"available_until,omitempty"`
+	Room           Room               `json:"-"`
 }
 
 type RoomSetApiResponse struct {
@@ -39,6 +41,17 @@ func (r RoomApiResponse) present() RoomApiResponse {
 	}
 
 	response.Available = r.Room.Available()
+
+	nextAvailable := r.Room.NextAvailable()
+	if !r.Room.Available() && !nextAvailable.IsZero() {
+		response.NextAvailable = nextAvailable.Format(time.RFC3339)
+	}
+
+	availableUntil := r.Room.AvailableUntil()
+	if !availableUntil.IsZero() {
+		response.AvailableUntil = availableUntil.Format(time.RFC3339)
+	}
+
 	return response
 }
 
