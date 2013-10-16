@@ -97,7 +97,7 @@ func loadEventsForRoom(calendarName string, calendarId string) {
 	log.Printf("Loading %v", calendarName)
 	events, err := client.Api().Events.List(calendarId).
 		TimeMin(time.Now().Format(time.RFC3339)).
-		TimeMax(time.Now().Add(24 * time.Hour).Format(time.RFC3339)).
+		TimeMax(time.Now().Truncate(24 * time.Hour).Add(24 * time.Hour).Format(time.RFC3339)).
 		SingleEvents(true).
 		OrderBy("startTime").Do()
 	if err != nil {
