@@ -60,7 +60,7 @@ func (r Room) AvailableUntil() time.Time {
 
 	firstEvent := r.Events[0]
 	if firstEvent.StartAt().Before(time.Now()) {
-		return time.Now()
+		return time.Time{}
 	}
 
 	return firstEvent.StartAt()
