@@ -14,6 +14,7 @@ type EventApiResponse struct {
 }
 
 type RoomApiResponse struct {
+	ResponseInfo 	 map[string]string  `json:"_response_info,omitempty"`
 	Events         []EventApiResponse `json:"events"`
 	Available      bool               `json:"available"`
 	NextAvailable  string             `json:"next_available,omitempty"`
@@ -27,7 +28,16 @@ type RoomSetApiResponse struct {
 	RoomSet      RoomSet                    `json:"-"`
 }
 
-func (r RoomApiResponse) present() RoomApiResponse {
+func (r RoomApiResponse) present(status string) RoomApiResponse {
+	response := r.render()
+
+	response.ResponseInfo = make(map[string]string)
+	response.ResponseInfo["status"] = status
+
+	return response
+}
+
+func (r RoomApiResponse) render() RoomApiResponse {
 	response := RoomApiResponse{
 		Events: []EventApiResponse{},
 	}
@@ -77,7 +87,7 @@ func (r RoomSetApiResponse) present(status string) RoomSetApiResponse {
 		presentedRoom := RoomApiResponse{
 			Room: room,
 		}
-		response.Rooms[room.Name] = presentedRoom.present()
+		response.Rooms[room.Name] = presentedRoom.render()
 	}
 
 	return response
