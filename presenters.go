@@ -44,12 +44,12 @@ func (r RoomApiResponse) present() RoomApiResponse {
 
 	nextAvailable := r.Room.NextAvailable()
 	if !r.Room.Available() && !nextAvailable.IsZero() {
-		response.NextAvailable = nextAvailable.Format(time.RFC3339)
+		response.NextAvailable = nextAvailable.In(time.UTC).Format(time.RFC3339)
 	}
 
 	availableUntil := r.Room.AvailableUntil()
 	if !availableUntil.IsZero() {
-		response.AvailableUntil = availableUntil.Format(time.RFC3339)
+		response.AvailableUntil = availableUntil.In(time.UTC).Format(time.RFC3339)
 	}
 
 	return response
@@ -57,8 +57,8 @@ func (r RoomApiResponse) present() RoomApiResponse {
 
 func (r EventApiResponse) present() EventApiResponse {
 	r.Name = r.Event.Name()
-	r.StartAt = r.Event.StartAt().Format(time.RFC3339)
-	r.EndAt = r.Event.EndAt().Format(time.RFC3339)
+	r.StartAt = r.Event.StartAt().In(time.UTC).Format(time.RFC3339)
+	r.EndAt = r.Event.EndAt().In(time.UTC).Format(time.RFC3339)
 	r.Creator = r.Event.Creator()
 
 	return r
