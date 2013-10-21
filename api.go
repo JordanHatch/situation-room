@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -42,7 +43,8 @@ func main() {
 	log.Println("Use Ctrl+C to stop")
 
 	authenticator := auth.NewBasicAuthenticator("situation-room", Authenticate)
-	http.HandleFunc("/", authenticator.Wrap(eventsHandler))
+	http.HandleFunc("/rooms", authenticator.Wrap(roomsIndexHandler))
+	http.HandleFunc("/rooms/", authenticator.Wrap(roomsShowHandler))
 	http.ListenAndServe(":"+port, nil)
 }
 
@@ -57,7 +59,7 @@ func Authenticate(user, realm string) string {
 	return ""
 }
 
-func eventsHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
+func roomsIndexHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	w.Header().Set("Content-Type", "application/json")
 
 	roomSet := RoomSet{
@@ -67,11 +69,10 @@ func eventsHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	}
 	apiResponse := RoomSetApiResponse{
 		RoomSet:      roomSet,
-		ResponseInfo: make(map[string]string),
 	}
 
 	status := "ok"
-	if roomSet.TotalRooms > roomSet.RoomsLoaded {
+	if !roomsLoaded() {
 		status = "incomplete"
 	}
 
@@ -81,6 +82,51 @@ func eventsHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	}
 	response := string(b)
 	fmt.Fprintf(w, response)
+}
+
+func roomsShowHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
+	roomExp := regexp.MustCompile("^/rooms/([a-zA-Z0-9]+)$")
+	dummyReq := http.Request{}
+
+	var roomId string
+
+	m := roomExp.FindStringSubmatch(r.URL.Path)
+	if m == nil {
+		http.NotFound(w, &dummyReq)
+		return
+	} else {
+		roomId = m[1]
+	}
+
+	room, ok := rooms[roomId]
+	if !ok {
+		http.NotFound(w, &dummyReq)
+		return
+	}
+
+	apiResponse := RoomApiResponse{
+		Room: room,
+	}
+
+	status := "ok"
+	if !roomsLoaded() {
+		status = "incomplete"
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	b, err := json.Marshal(apiResponse.present(status))
+	if err != nil {
+		log.Fatal("Error preparing JSON: ", err)
+	}
+	response := string(b)
+	fmt.Fprintf(w, response)
+}
+
+func roomsLoaded() bool {
+	if len(calendars) > len(rooms) {
+		return false
+	}
+	return true
 }
 
 func loadEvents() {
