@@ -7,7 +7,7 @@ import (
 	calendar "code.google.com/p/google-api-go-client/calendar/v3"
 )
 
-const dateTimeFormat = "2006-01-02T15:04:05-07:00"
+const dateTimeFormat = "2006-01-02T15:04:05Z07:00"
 
 type Event struct {
 	Source *calendar.Event
