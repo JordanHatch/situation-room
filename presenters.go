@@ -6,11 +6,12 @@ import (
 )
 
 type EventApiResponse struct {
-	Name    string `json:"name"`
-	Creator string `json:"creator"`
-	StartAt string `json:"start_at"`
-	EndAt   string `json:"end_at"`
-	Event   Event  `json:"-"`
+	Name       string `json:"name"`
+	Creator    string `json:"creator"`
+	StartAt    string `json:"start_at"`
+	EndAt      string `json:"end_at"`
+	Visibility string `json:"visibility"`
+	Event      Event  `json:"-"`
 }
 
 type RoomApiResponse struct {
@@ -70,6 +71,7 @@ func (r EventApiResponse) present() EventApiResponse {
 	r.StartAt = r.Event.StartAt().In(time.UTC).Format(time.RFC3339)
 	r.EndAt = r.Event.EndAt().In(time.UTC).Format(time.RFC3339)
 	r.Creator = r.Event.Creator()
+	r.Visibility = r.Event.Visibility()
 
 	return r
 }

@@ -24,6 +24,13 @@ func (e Event) Creator() string {
 	return ""
 }
 
+func (e Event) Visibility() string {
+	if e.Source.Visibility == "private" || e.Source.Summary == "" {
+		return "private"
+	}
+	return "public"
+}
+
 func (e Event) StartAt() time.Time {
 	if e.Source.Start != nil {
 		if e.Source.Start.DateTime != "" {
