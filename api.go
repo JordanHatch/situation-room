@@ -68,7 +68,7 @@ func roomsIndexHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 		RoomsLoaded: len(rooms),
 	}
 	apiResponse := RoomSetApiResponse{
-		RoomSet:      roomSet,
+		RoomSet: roomSet,
 	}
 
 	status := "ok"

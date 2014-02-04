@@ -15,7 +15,7 @@ type EventApiResponse struct {
 }
 
 type RoomApiResponse struct {
-	ResponseInfo 	 map[string]string  `json:"_response_info,omitempty"`
+	ResponseInfo   map[string]string  `json:"_response_info,omitempty"`
 	Events         []EventApiResponse `json:"events"`
 	Available      bool               `json:"available"`
 	NextAvailable  string             `json:"next_available,omitempty"`
