@@ -146,12 +146,13 @@ func loadEventsForRoom(calendarName string, calendarId string) {
 		TimeMax(time.Now().Truncate(24 * time.Hour).Add(24 * time.Hour).Format(time.RFC3339)).
 		SingleEvents(true).
 		OrderBy("startTime").Do()
-	if err != nil {
-		log.Fatal("Error making the calendar api request: ", err)
-	}
 
-	rooms[calendarName] = CreateRoomFromEvents(calendarName, events.Items)
-	log.Printf("Finished loading %v events for %v", len(rooms[calendarName].Events), calendarName)
+	if err != nil {
+		log.Printf("Error loading room %v: %v", calendarName, err)
+	} else {
+		rooms[calendarName] = CreateRoomFromEvents(calendarName, events.Items)
+		log.Printf("Finished loading %v events for %v", len(rooms[calendarName].Events), calendarName)
+	}
 }
 
 func parseCalendarConfig(config string) map[string]string {
