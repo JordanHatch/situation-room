@@ -1,8 +1,6 @@
 package main
 
 import (
-	auth "github.com/abbot/go-http-auth"
-
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/json"
@@ -42,9 +40,8 @@ func main() {
 	log.Println("API is starting up on :" + port)
 	log.Println("Use Ctrl+C to stop")
 
-	authenticator := auth.NewBasicAuthenticator("situation-room", Authenticate)
-	http.HandleFunc("/rooms", authenticator.Wrap(roomsIndexHandler))
-	http.HandleFunc("/rooms/", authenticator.Wrap(roomsShowHandler))
+	http.HandleFunc("/rooms", roomsIndexHandler)
+	http.HandleFunc("/rooms/", roomsShowHandler)
 	http.ListenAndServe(":"+port, nil)
 }
 
@@ -59,7 +56,7 @@ func Authenticate(user, realm string) string {
 	return ""
 }
 
-func roomsIndexHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
+func roomsIndexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	roomSet := RoomSet{
@@ -84,7 +81,7 @@ func roomsIndexHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	fmt.Fprintf(w, response)
 }
 
-func roomsShowHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
+func roomsShowHandler(w http.ResponseWriter, r *http.Request) {
 	roomExp := regexp.MustCompile("^/rooms/([a-zA-Z0-9]+)$")
 	dummyReq := http.Request{}
 
